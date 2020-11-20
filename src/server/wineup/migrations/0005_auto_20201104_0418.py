@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def import_parsed_data(apps, schema_editor):
-    parsed_review = pd.read_csv("../../data/reviews.csv")
+    parsed_review = pd.read_csv("data/reviews.csv")
     User = apps.get_model("wineup", "User")
     user_id_db_user_id = {}
     for user_id in parsed_review["user_id"].unique():

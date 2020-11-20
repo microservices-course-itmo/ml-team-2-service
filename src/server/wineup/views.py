@@ -3,7 +3,7 @@ from typing import List
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 from .models import Wine, User, Review
 from .serializers import (
     WineSerializer,
@@ -50,6 +50,8 @@ try:
     adjacency_matrix = build_adjacency_matrix()
     most_popular_index = most_popular_wines(adjacency_matrix)
 except OperationalError:
+    pass
+except ProgrammingError:
     pass
 
 
