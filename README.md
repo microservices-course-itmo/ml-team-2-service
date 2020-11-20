@@ -3,7 +3,7 @@ WineUp Recommendations
 
 Recommendation service for wineup app
 
-Команда для запуска dev сервера:
+Команды для запуска dev сервера:
 ```shell script
 docker-compose build
 docker-compose up
@@ -16,4 +16,3 @@ docker-compose up
 ```shell script
 docker-compose exec web python src/server/manage.py createsuperuser --email admin@example.com --username admin --noinput
 ```
-
