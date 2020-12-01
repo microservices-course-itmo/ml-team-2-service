@@ -11,4 +11,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT bash -c "python src/server/manage.py migrate && python src/server/manage.py createsuperuser --email admin@example.com --username admin --noinput ; python src/server/manage.py runserver 0.0.0.0:8000"
+ENTRYPOINT bash -c "python src/server/manage.py migrate && python src/server/manage.py createsuperuser --email admin@example.com --username admin --noinput ; python src/server/manage.py runserver 0.0.0.0:80"
