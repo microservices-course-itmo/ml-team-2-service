@@ -82,7 +82,7 @@ DATABASES = {
         "USER": os.environ.get("S_POSTGRES_USER"),
         "PASSWORD": os.environ.get("S_POSTGRES_PASSWORD"),
         "HOST": os.environ.get("S_POSTGRES_HOST"),
-        "PORT": os.environ.get("SQL_PORT"),
+        "PORT": os.environ.get("SQL_PORT", None),
     }
 }
 
