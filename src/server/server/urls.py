@@ -17,7 +17,5 @@ import os
 from django.contrib import admin
 from django.urls import path, include
 
-prefix = os.environ.get("S_URL_PREFIX")
-
-urlpatterns = [path(f"{prefix}/admin/", admin.site.urls),
+urlpatterns = [path("admin/", admin.site.urls),
                path("", include("wineup.urls"))]
