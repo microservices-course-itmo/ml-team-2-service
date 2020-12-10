@@ -1,4 +1,4 @@
-FROM python:3.9-buster
+FROM jupyter/scipy-notebook:latest
 
 WORKDIR /usr/src/app
 
