@@ -65,7 +65,7 @@ LOGGING = {
             'version': 1,
             'message_type': 'django',  # 'type' field in logstash message. Default value: 'logstash'.
             'fqdn': False,
-            'tags': ['django'],  # list of tags. Default: None.
+            'tags': ['ml-team-2-service'],  # list of tags. Default: None.
         },
   },
   'loggers': {
