@@ -2,8 +2,10 @@ scikit-learn
 scipy
 numpy
 pandas
-django==3.1.*
-djangorestframework==3.12.*
+django
+djangorestframework
 tqdm
-psycopg2-binary==2.7.*
+psycopg2-binary
 requests
+setuptools
+python-logstash
