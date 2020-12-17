@@ -12,4 +12,21 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT bash -c "python3 src/server/manage.py migrate && python3 src/server/manage.py createsuperuser --email admin@example.com --username admin --noinput ; python3 src/server/manage.py runserver 0.0.0.0:80"
+RUN \
+  apt install -y software-properties-common && \
+  add-apt-repository -y ppa:nginx/stable && \
+  apt install -y nginx && \
+  rm -rf /var/lib/apt/lists/* && \
+  echo "\ndaemon off;" >> /etc/nginx/nginx.conf && \
+  chown -R www-data:www-data /var/lib/nginx && \
+  ln -s /usr/src/app/nginx/service.conf /etc/nginx/sites-enabled/service.conf && \
+  rm /etc/nginx/sites-enabled/default
+
+
+
+ENTRYPOINT bash -c "python3 src/server/manage.py migrate && \
+                    python3 src/server/manage.py createsuperuser --email admin@example.com --username admin --noinput ; \
+                    python3 src/server/manage.py runserver 0.0.0.0:8080 & \
+                    nginx"
+
+EXPOSE 80
