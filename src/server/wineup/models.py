@@ -2,12 +2,12 @@ from django.db import models
 
 
 class Wine(models.Model):
-    internal_id = models.IntegerField(null=True, blank=True, unique=True)
+    internal_id = models.CharField(null=True, blank=True, unique=True, max_length=500)
     all_names = models.CharField(null=True, max_length=2000)
 
 
 class User(models.Model):
-    internal_id = models.IntegerField(null=True, blank=True, unique=True)
+    internal_id = models.CharField(null=True, blank=True, unique=True, max_length=500)
 
 
 class Review(models.Model):

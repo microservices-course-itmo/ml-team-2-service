@@ -15,6 +15,8 @@ services:
     image: postgres:12.0-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    ports:
+    - 54321:5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

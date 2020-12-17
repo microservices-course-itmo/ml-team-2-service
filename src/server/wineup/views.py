@@ -1,4 +1,5 @@
 from typing import List
+import json
 
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -72,7 +73,7 @@ def user_list(request):
             adjacency_matrix.loc[len(adjacency_matrix)] = [
                 int(serializer.data["id"])
             ] + [None] * (adjacency_matrix.shape[1] - 1)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -80,20 +81,27 @@ def user_list(request):
 @api_view(["GET", "POST"])
 def wine_list(request):
     """
-    Получить все вина или добавить новое
+    Получить все вина или добавить новые
     """
     if request.method == "GET":
         wine = Wine.objects.all()
         serializer = WineSerializer(wine, many=True)
         return Response(serializer.data)
     elif request.method == "POST":
-        serializer = WineSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            global adjacency_matrix
-            adjacency_matrix[serializer.data["id"]] = [None] * adjacency_matrix.shape[0]
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = json.loads(request.data)
+        if not isinstance(data, list):
+            return Response("Data must be array", status=status.HTTP_400_BAD_REQUEST)
+        wines = []
+        for wine in data:
+            serializer = WineSerializer(data=wine)
+            if serializer.is_valid():
+                serializer.save()
+                wines.append(serializer.data)
+                global adjacency_matrix
+                adjacency_matrix[serializer.data["id"]] = [None] * adjacency_matrix.shape[0]
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(json.dumps(wines), status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
