@@ -162,6 +162,6 @@ SWAGGER_SETTINGS = {
     "DEFAULT_MODEL_RENDERING": "example",
 }
 
-STATIC_URL = "/admin/static/"
+STATIC_URL = "/ml-team-2-service/static/"
 
 CORS_ALLOW_ALL_ORIGINS = True
