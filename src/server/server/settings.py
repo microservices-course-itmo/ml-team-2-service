@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "wineup.apps.WineupConfig",
+    "drf_yasg",
 ]
 
 logstash_host = os.environ.get("S_LOGSTASH_HOST")
@@ -153,8 +154,14 @@ USE_L10N = True
 
 USE_TZ = True
 
+APPEND_SLASH = False
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
+SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
+    "PERSIST_AUTH": True,
+    "DEFAULT_MODEL_RENDERING": "example",
+}
 
-STATIC_URL = "ml-team-2-service/static/"
+STATIC_URL = "/admin/static/"
+
+CORS_ALLOW_ALL_ORIGINS = True
