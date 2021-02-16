@@ -10,15 +10,17 @@ RUN pip3 install --upgrade pip
 COPY ./requirements.txt .
 RUN pip3 install -r requirements.txt
 
-COPY ./nginx .
-
 RUN \
   apt install -y software-properties-common && \
   add-apt-repository -y ppa:nginx/stable && \
   apt install -y nginx && \
   rm -rf /var/lib/apt/lists/* && \
   echo "\ndaemon off;" >> /etc/nginx/nginx.conf && \
-  chown -R www-data:www-data /var/lib/nginx && \
+  chown -R www-data:www-data /var/lib/nginx
+
+COPY ./nginx .
+
+RUN \
   ln -s /usr/src/app/nginx/service.conf /etc/nginx/sites-enabled/service.conf && \
   rm /etc/nginx/sites-enabled/default
 
