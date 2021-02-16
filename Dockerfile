@@ -10,7 +10,7 @@ RUN pip3 install --upgrade pip
 COPY ./requirements.txt .
 RUN pip3 install -r requirements.txt
 
-COPY . .
+COPY ./nginx .
 
 RUN \
   apt install -y software-properties-common && \
@@ -22,7 +22,7 @@ RUN \
   ln -s /usr/src/app/nginx/service.conf /etc/nginx/sites-enabled/service.conf && \
   rm /etc/nginx/sites-enabled/default
 
-
+COPY . .
 
 ENTRYPOINT bash -c "python3 src/server/manage.py migrate && \
                     python3 src/server/manage.py createsuperuser --email admin@example.com --username admin --noinput ; \
