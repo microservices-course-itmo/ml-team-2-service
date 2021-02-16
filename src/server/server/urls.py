@@ -15,6 +15,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="ML Team 2 Service",
+        default_version="v0.1.0",
+        description="""
+      ### Заметки
+      Пока нет""",
+    ),
+    public=True,
+    authentication_classes=(),
+    # permission_classes=[permissions.AllowAny, permissions.IsAuthenticated, IsOwner],
+)
 
 urlpatterns = [path("ml-team-2-service/admin/", admin.site.urls),
+               path(
+                   "swagger/",
+                   schema_view.with_ui("swagger", cache_timeout=0),
+                   name="schema-swagger-ui",
+               ),
                path("", include("wineup.urls"))]

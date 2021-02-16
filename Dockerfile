@@ -27,7 +27,6 @@ RUN \
 ENTRYPOINT bash -c "python3 src/server/manage.py migrate && \
                     python3 src/server/manage.py createsuperuser --email admin@example.com --username admin --noinput ; \
                     python3 src/server/manage.py runserver localhost:8081 & \
-                    python3 swagger/server.py & \
                     nginx"
 
 EXPOSE 80

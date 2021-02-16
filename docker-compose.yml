@@ -6,7 +6,7 @@ services:
     volumes:
       - ./:/usr/src/app/
     ports:
-      - 80:80
+      - 8880:80
     env_file:
       - ./.env
     depends_on:
