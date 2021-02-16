@@ -31,9 +31,9 @@ schema_view = get_schema_view(
     # permission_classes=[permissions.AllowAny, permissions.IsAuthenticated, IsOwner],
 )
 
-urlpatterns = [path("admin/", admin.site.urls),
+urlpatterns = [path("ml-team-2-service/admin/", admin.site.urls),
                path(
-                   "swagger/",
+                   "swagger-ui.html",
                    schema_view.with_ui("swagger", cache_timeout=0),
                    name="schema-swagger-ui",
                ),
