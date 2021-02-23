@@ -1,3 +1,4 @@
+import os
 from typing import List
 import json
 
@@ -48,8 +49,9 @@ def most_popular_wines(adjacency_matrix: pd.DataFrame) -> List[int]:
 
 
 try:
-    adjacency_matrix = build_adjacency_matrix()
-    most_popular_index = most_popular_wines(adjacency_matrix)
+    if os.environ.get("BUILD_MATRIX", False):
+        adjacency_matrix = build_adjacency_matrix()
+        most_popular_index = most_popular_wines(adjacency_matrix)
 except OperationalError:
     pass
 except ProgrammingError:
