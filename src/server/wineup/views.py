@@ -1,7 +1,9 @@
 import os
 from typing import List
 import json
+import logging
 
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -58,6 +60,7 @@ except ProgrammingError:
     pass
 
 
+@swagger_auto_schema(methods=["get", "post"], auto_schema=None)
 @api_view(["GET", "POST"])
 def user_list(request):
     """
@@ -80,6 +83,7 @@ def user_list(request):
 
 
 # TODO: добавить матчинг по названиям
+@swagger_auto_schema(methods=["get", "post"], auto_schema=None)
 @api_view(["GET", "POST"])
 def wine_list(request):
     """
@@ -106,6 +110,7 @@ def wine_list(request):
         return Response(json.dumps(wines), status=status.HTTP_200_OK)
 
 
+@swagger_auto_schema(method="post", auto_schema=None)
 @api_view(["POST"])
 def review_list(request):
     """
@@ -165,8 +170,9 @@ def get_recommendations(request, user_id):
     return Response({"wine_id": wines_id[offset:amount]}, status=status.HTTP_200_OK)
 
 
+@swagger_auto_schema(method="get", auto_schema=None)
 @api_view(["GET"])
 def print_matrix(request):
     global adjacency_matrix
-    print(adjacency_matrix)
+    logging.info(adjacency_matrix)
     return Response({}, status.HTTP_200_OK)
