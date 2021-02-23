@@ -4,8 +4,8 @@ import requests
 from tqdm import tqdm
 import logging
 
-OUR_ADDRESS = os.environ.get('S_OUR_ADDRESS')
-CATALOG_ADDRESS = os.environ.get('S_CATALOG_ADDRESS')
+OUR_ADDRESS = os.environ['S_OUR_ADDRESS']
+CATALOG_ADDRESS = os.environ['S_CATALOG_ADDRESS']
 
 
 def get_catalog_wines():
