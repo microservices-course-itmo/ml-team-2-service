@@ -169,4 +169,4 @@ CSRF_COOKIE_SECURE = False
 
 CSRF_COOKIE_PATH = "/ml-team-2-service/admin/"
 
-CSRF_COOKIE_SAMESITE="None"
+CSRF_COOKIE_SAMESITE=False
