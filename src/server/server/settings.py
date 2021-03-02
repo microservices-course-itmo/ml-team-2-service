@@ -92,11 +92,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-MIDDLEWARE_CLASSES = (
-    "ml-team-2-service.disable.DisableCSRF",
-)
-
-
 ROOT_URLCONF = "server.urls"
 
 TEMPLATES = [
