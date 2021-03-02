@@ -54,11 +54,11 @@ def main():
         request_body.append({"internal_id": id_})
     response = requests.post(f"{OUR_ADDRESS}/users/", json=json.dumps(request_body))
     if response.status_code != 200:
-        logging.error(f"Adding wines failed")
+        logging.error(f"Adding users failed")
         logging.error(response.status_code)
         logging.error(response.text)
-        raise Exception("Adding wines failed")
-    logging.info(f"Finished adding new wines")
+        raise Exception("Adding users failed")
+    logging.info(f"Finished adding new users")
 
 
 if __name__ == "__main__":
