@@ -165,6 +165,7 @@ SWAGGER_SETTINGS = {
     "USE_SESSION_AUTH": False,
     "PERSIST_AUTH": True,
     "DEFAULT_MODEL_RENDERING": "example",
+    "BASE_URL": os.getenv('S_BASE_URL')
 }
 
 STATIC_URL = "/ml-team-2-service/static/"
