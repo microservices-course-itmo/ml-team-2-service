@@ -7,7 +7,6 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.db.utils import OperationalError, ProgrammingError
 from .models import Wine, User, Review
 from .serializers import (
     WineSerializer,
@@ -50,14 +49,10 @@ def most_popular_wines(adjacency_matrix: pd.DataFrame) -> List[int]:
     return most_popular_index
 
 
-try:
-    if os.environ.get("BUILD_MATRIX", False):
-        adjacency_matrix = build_adjacency_matrix()
-        most_popular_index = most_popular_wines(adjacency_matrix)
-except OperationalError:
-    pass
-except ProgrammingError:
-    pass
+if os.environ.get("BUILD_MATRIX", False):
+    global adjacency_matrix
+    adjacency_matrix = build_adjacency_matrix()
+    most_popular_index = most_popular_wines(adjacency_matrix)
 
 
 @swagger_auto_schema(methods=["get", "post"], auto_schema=None)
@@ -71,15 +66,22 @@ def user_list(request):
         serializer = UserSerializer(user, many=True)
         return Response(serializer.data)
     elif request.method == "POST":
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            global adjacency_matrix
-            adjacency_matrix.loc[len(adjacency_matrix)] = [
-                int(serializer.data["id"])
-            ] + [None] * (adjacency_matrix.shape[1] - 1)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = json.loads(request.data)
+        if not isinstance(data, list):
+            return Response("Data must be array", status=status.HTTP_400_BAD_REQUEST)
+        users = []
+        for user in data:
+            serializer = UserSerializer(data=user)
+            if serializer.is_valid():
+                serializer.save()
+                users.append(serializer.data)
+                global adjacency_matrix
+                adjacency_matrix.loc[len(adjacency_matrix)] = [
+                    int(serializer.data["id"])
+                ] + [None] * (adjacency_matrix.shape[1] - 1)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(json.dumps(users), status=status.HTTP_200_OK)
 
 
 # TODO: добавить матчинг по названиям
@@ -104,7 +106,9 @@ def wine_list(request):
                 serializer.save()
                 wines.append(serializer.data)
                 global adjacency_matrix
-                adjacency_matrix[serializer.data["id"]] = [None] * adjacency_matrix.shape[0]
+                adjacency_matrix[serializer.data["id"]] = [
+                    None
+                ] * adjacency_matrix.shape[0]
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(json.dumps(wines), status=status.HTTP_200_OK)
@@ -162,8 +166,15 @@ def get_recommendations(request, user_id):
     Получить рекомендацию по конкретному пользователю
     """
     global adjacency_matrix
-    # TODO: получать по внешнему user_id внутренний user_id
-    wines_id = model(adjacency_matrix, most_popular_index, user_id)
+    # TODO: Вместо ошибки возвращать самые популярные вина
+    try:
+        our_user = User.objects.get(internal_id=user_id)
+    except Wine.DoesNotExist:
+        return Response(
+            f"User with id {user_id} does not exist",
+            status.HTTP_400_BAD_REQUEST,
+        )
+    wines_id = model(adjacency_matrix, most_popular_index, our_user.id)
     offset = int(request.query_params.get("offset", 0))
     amount = int(request.query_params.get("amount", 20))
     print(offset, amount)

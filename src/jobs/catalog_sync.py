@@ -4,8 +4,8 @@ import requests
 from tqdm import tqdm
 import logging
 
-OUR_ADDRESS = os.environ['S_OUR_ADDRESS']
-CATALOG_ADDRESS = os.environ['S_CATALOG_ADDRESS']
+OUR_ADDRESS = os.environ["S_OUR_ADDRESS"]
+CATALOG_ADDRESS = os.environ["S_CATALOG_ADDRESS"]
 
 
 def get_catalog_wines():
@@ -26,21 +26,14 @@ def get_our_wines():
     return our_wines.json()
 
 
-def add_new_wine(wine: dict):
-    body = {"internal_id": wine["wine_id"], "all_names": wine["name"]}
-    response = requests.post(f"{OUR_ADDRESS}/wines/", json=body)
-    if response.status_code != 200:
-        logging.error(f"Adding wine with id {wine['wine_id']} failed")
-        logging.error(response.status_code)
-        logging.error(response.json())
-
-
 def main():
     catalog_wines = get_catalog_wines()
     our_wines = get_our_wines()
 
     catalog_ids = set([wine["wine_id"] for wine in catalog_wines])
-    our_ids = set([wine["internal_id"] for wine in our_wines if wine["internal_id"] != None])
+    our_ids = set(
+        [wine["internal_id"] for wine in our_wines if wine["internal_id"] != None]
+    )
     new_ids = catalog_ids - our_ids
 
     logging.info(f"Started adding new wines. Will be added {len(new_ids)} wines")
@@ -58,6 +51,6 @@ def main():
     logging.info(f"Finished adding new wines")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     main()
