@@ -45,41 +45,39 @@ INSTALLED_APPS = [
 logstash_host = os.environ.get("S_LOGSTASH_HOST")
 
 LOGGING = {
-  'version': 1,
-  'disable_existing_loggers': False,
-  'formatters': {
-      'simple': {
-            'format': '%(message)s'
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {"format": "%(message)s"},
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
         },
-  },
-  'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+        "logstash": {
+            "level": "INFO",
+            "class": "logstash.TCPLogstashHandler",
+            "host": logstash_host.split(":")[0],
+            "port": int(logstash_host.split(":")[1]),
+            "version": 1,
+            "message_type": "django",  # 'type' field in logstash message. Default value: 'logstash'.
+            "fqdn": False,
+            "tags": ["ml-team-2-service"],  # list of tags. Default: None.
         },
-        'logstash': {
-            'level': 'INFO',
-            'class': 'logstash.TCPLogstashHandler',
-            'host': logstash_host.split(":")[0],
-            'port': int(logstash_host.split(":")[1]),
-            'version': 1,
-            'message_type': 'django',  # 'type' field in logstash message. Default value: 'logstash'.
-            'fqdn': False,
-            'tags': ['ml-team-2-service'],  # list of tags. Default: None.
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["logstash"],
+            "level": "INFO",
+            "propagate": True,
         },
-  },
-  'loggers': {
-        'django.request': {
-            'handlers': ['logstash'],
-            'level': 'INFO',
-            'propagate': True,
+        "django": {
+            "handlers": ["console"],
+            "propagate": True,
         },
-        'django': {
-            'handlers': ['console'],
-            'propagate': True,
-        },
-    }
+    },
 }
 
 MIDDLEWARE = [
@@ -91,11 +89,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
-MIDDLEWARE_CLASSES = (
-    "ml-team-2-service.disable.DisableCSRF",
-)
-
 
 ROOT_URLCONF = "server.urls"
 
@@ -140,9 +133,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
@@ -175,4 +174,4 @@ CSRF_COOKIE_SECURE = False
 
 CSRF_COOKIE_PATH = "/ml-team-2-service/admin/"
 
-CSRF_COOKIE_SAMESITE=False
+CSRF_COOKIE_SAMESITE = False

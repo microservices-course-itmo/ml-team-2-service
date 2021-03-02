@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wineup', '0005_auto_20201104_0418'),
+        ("wineup", "0005_auto_20201104_0418"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='internal_id',
+            model_name="user",
+            name="internal_id",
             field=models.CharField(blank=True, max_length=500, null=True, unique=True),
         ),
         migrations.AlterField(
-            model_name='wine',
-            name='internal_id',
+            model_name="wine",
+            name="internal_id",
             field=models.CharField(blank=True, max_length=500, null=True, unique=True),
         ),
     ]
