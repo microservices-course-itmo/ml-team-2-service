@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from drf_yasg.views import get_schema_view
@@ -28,6 +29,7 @@ schema_view = get_schema_view(
     ),
     public=True,
     authentication_classes=(),
+    url=settings.SWAGGER_SETTINGS["BASE_URL"],
     # permission_classes=[permissions.AllowAny, permissions.IsAuthenticated, IsOwner],
 )
 
