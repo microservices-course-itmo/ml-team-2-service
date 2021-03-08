@@ -1,12 +1,15 @@
 from kafka import KafkaConsumer
 from json import loads
+import os
 
 TOPIC = 'eventTopic'
-BOOTSTRAP_SERVER = ['localhost:9092']
+BOOTSTRAP_SERVER = [os.environ.get('S_KAFKA_BOOTSTRAP_HOST')]
+#BOOTSTRAP_SERVER = ['kafka:9092']
+print(BOOTSTRAP_SERVER)
 AUTO_OFFSET_RESET = 'earliest' # after breaking down consumer restarts reading at the latest commit offset
 ENABLE_AUTO_COMMIT = True # makes sure the consumer commits its read offset every interval
 AUTO_COMMIT_INTERVAL = 1 # 1 second
-GROUP_ID = 'my-group' # consumer needs to be a part of a consumer group
+GROUP_ID = 'wine.catalog-service' # consumer needs to be a part of a consumer group
 
 consumer = KafkaConsumer(
     TOPIC,

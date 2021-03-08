@@ -11,3 +11,4 @@ setuptools==51.0.0
 python-logstash==0.4.6
 flask-swagger-ui==3.36.0
 drf-yasg==1.20.0
+kafka-python
