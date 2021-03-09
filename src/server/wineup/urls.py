@@ -7,5 +7,7 @@ urlpatterns = [
     path("review/", views.review_list),
     path("print/", views.print_matrix),
     path("recommendations/<int:user_id>/", views.get_recommendations),
+    path("user_sync/", views.user_sync),
+    path("catalog_sync/", views.catalog_sync),
     # path('wine/<int:pk>/', views.wine_detail),
 ]

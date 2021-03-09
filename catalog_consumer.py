@@ -12,7 +12,6 @@ ENABLE_AUTO_COMMIT = (
 AUTO_COMMIT_INTERVAL = 1  # 1 second
 GROUP_ID = "wine.catalog-service"  # consumer needs to be a part of a consumer group
 
-
 def connect_kafka_producer():
     _producer = None
     try:
