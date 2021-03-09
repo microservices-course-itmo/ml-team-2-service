@@ -3,41 +3,36 @@ from kafka import KafkaConsumer, KafkaProducer
 from json import loads
 import os
 
-<<<<<<< Updated upstream
 TOPIC = "eventTopic"
-# BOOTSTRAP_SERVER = [os.environ.get('S_KAFKA_BOOTSTRAP_HOST')]
-BOOTSTRAP_SERVER = ["kafka:9092"]
+BOOTSTRAP_SERVER = ["localhost:9092"]
 AUTO_OFFSET_RESET = "earliest"  # after breaking down consumer restarts reading at the latest commit offset
 ENABLE_AUTO_COMMIT = (
     True  # makes sure the consumer commits its read offset every interval
 )
 AUTO_COMMIT_INTERVAL = 1  # 1 second
 GROUP_ID = "wine.catalog-service"  # consumer needs to be a part of a consumer group
-=======
-TOPIC = 'eventTopic'
-BOOTSTRAP_SERVER = ['localhost:9092']
-AUTO_OFFSET_RESET = 'earliest' # after breaking down consumer restarts reading at the latest commit offset
-ENABLE_AUTO_COMMIT = True # makes sure the consumer commits its read offset every interval
-AUTO_COMMIT_INTERVAL = 1 # 1 second
-GROUP_ID = 'wine.catalog-service' # consumer needs to be a part of a consumer group
->>>>>>> Stashed changes
+
 
 def connect_kafka_producer():
     _producer = None
     try:
-        _producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
+        _producer = KafkaProducer(bootstrap_servers=["localhost:9092"])
     except Exception:
         pass
     finally:
         return _producer
 
+
 def publish_message(producer_instance, topic_name, data):
     try:
-        producer_instance.send(topic_name, data.SerializeToString())#key=key_bytes, value=value_bytes)
+        producer_instance.send(
+            topic_name, data.SerializeToString()
+        )  # key=key_bytes, value=value_bytes)
         producer_instance.flush()
-        print('Message successfully sent...\n')
+        print("Message successfully sent...\n")
     except Exception as e:
         print(str(e))
+
 
 def get_message(consumer):
     messages = []
@@ -45,7 +40,8 @@ def get_message(consumer):
         UpdatePriceEvent = message.value
         messages.append(UpdatePriceEvent)
         print(UpdatePriceEvent)
-    return(messages)
+    return messages
+
 
 producer = connect_kafka_producer()
 print("Poducer innitialized")
@@ -66,6 +62,6 @@ segm.id = 1
 
 print(segm)
 # this is just to check locally if it`s working or not
-publish_message(producer, TOPIC, segm)#'msg', str(serialized))
+publish_message(producer, TOPIC, segm)  #'msg', str(serialized))
 links = get_message(consumer)
 print(links)

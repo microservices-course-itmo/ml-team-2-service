@@ -171,8 +171,7 @@ def get_recommendations(request, user_id):
         our_user = User.objects.get(internal_id=user_id)
     except Wine.DoesNotExist:
         return Response(
-            f"User with id {user_id} does not exist",
-            status.HTTP_400_BAD_REQUEST,
+            f"User with id {user_id} does not exist", status.HTTP_400_BAD_REQUEST,
         )
     wines_id = model(adjacency_matrix, most_popular_index, our_user.id)
     offset = int(request.query_params.get("offset", 0))
