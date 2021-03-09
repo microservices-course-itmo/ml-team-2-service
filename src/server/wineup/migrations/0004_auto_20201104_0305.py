@@ -11,7 +11,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterUniqueTogether(
-            name="review",
-            unique_together={("wine", "user")},
+            name="review", unique_together={("wine", "user")},
         ),
     ]

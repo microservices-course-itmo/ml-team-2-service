@@ -47,9 +47,7 @@ logstash_host = os.environ.get("S_LOGSTASH_HOST")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "simple": {"format": "%(message)s"},
-    },
+    "formatters": {"simple": {"format": "%(message)s"},},
     "handlers": {
         "console": {
             "level": "DEBUG",
@@ -73,10 +71,7 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
-        "django": {
-            "handlers": ["console"],
-            "propagate": True,
-        },
+        "django": {"handlers": ["console"], "propagate": True,},
     },
 }
 
@@ -133,15 +128,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
 
 
@@ -164,7 +153,7 @@ SWAGGER_SETTINGS = {
     "USE_SESSION_AUTH": False,
     "PERSIST_AUTH": True,
     "DEFAULT_MODEL_RENDERING": "example",
-    "BASE_URL": os.getenv('S_BASE_URL')
+    "BASE_URL": os.getenv("S_BASE_URL"),
 }
 
 STATIC_URL = "/ml-team-2-service/static/"
