@@ -1,4 +1,5 @@
 import os
+import subprocess
 from typing import List
 import json
 import logging
@@ -187,3 +188,25 @@ def print_matrix(request):
     global adjacency_matrix
     logging.info(adjacency_matrix)
     return Response({}, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def user_sync(request):
+    """
+    Run job user_sync
+    """
+    output = subprocess.Popen(
+        ["python", "src/jobs/user_sync.py"], stdout=subprocess.PIPE
+    )
+    return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def catalog_sync(request):
+    """
+    Run job catalog_sync
+    """
+    output = subprocess.Popen(
+        ["python", "src/jobs/catalog_sync.py"], stdout=subprocess.PIPE
+    )
+    return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
