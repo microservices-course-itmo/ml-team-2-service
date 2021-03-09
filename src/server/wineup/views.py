@@ -32,7 +32,7 @@ def build_adjacency_matrix() -> pd.DataFrame:
         result = [int(user.pk)] + [None] * len(wines)
         for review in user_reviews:
             result[wine_pk_wine_id[review.wine.pk] + 1] = (
-                    review.rating / review.variants
+                review.rating / review.variants
             )
 
         adjacency_matrix.append(result)
@@ -78,8 +78,8 @@ def user_list(request):
                 users.append(serializer.data)
                 global adjacency_matrix
                 adjacency_matrix.loc[len(adjacency_matrix)] = [
-                                                                  int(serializer.data["id"])
-                                                              ] + [None] * (adjacency_matrix.shape[1] - 1)
+                    int(serializer.data["id"])
+                ] + [None] * (adjacency_matrix.shape[1] - 1)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(json.dumps(users), status=status.HTTP_200_OK)
@@ -108,8 +108,8 @@ def wine_list(request):
                 wines.append(serializer.data)
                 global adjacency_matrix
                 adjacency_matrix[serializer.data["id"]] = [
-                                                              None
-                                                          ] * adjacency_matrix.shape[0]
+                    None
+                ] * adjacency_matrix.shape[0]
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(json.dumps(wines), status=status.HTTP_200_OK)
@@ -195,7 +195,9 @@ def user_sync(request):
     """
     Run job user_sync
     """
-    output = subprocess.Popen(['python', 'src/jobs/user_sync.py'], stdout=subprocess.PIPE)
+    output = subprocess.Popen(
+        ["python", "src/jobs/user_sync.py"], stdout=subprocess.PIPE
+    )
     return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
 
 
@@ -204,5 +206,7 @@ def catalog_sync(request):
     """
     Run job catalog_sync
     """
-    output = subprocess.Popen(['python', 'src/jobs/catalog_sync.py'], stdout=subprocess.PIPE)
+    output = subprocess.Popen(
+        ["python", "src/jobs/catalog_sync.py"], stdout=subprocess.PIPE
+    )
     return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
