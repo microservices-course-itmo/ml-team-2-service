@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "com.wine.to.up.user.service.api.message";
+
+message EntityUpdatedMeta {
+  enum Operation {
+    CREATE = 0;
+    DELETE = 1;
+    UPDATE = 2;
+    CLEAR = 3;
+  }
+  Operation operation_type = 1;
+  int64 operation_time = 2;
+}
