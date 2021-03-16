@@ -5,7 +5,7 @@ import user_updated_event_pb2 as user
 
 TOPIC_USERS = "user-service-user-updated"  # needed to be changed
 TOPIC_FAVOURITE = "user-service-favorites-updated"
-BOOTSTRAP_SERVER = [os.environ.get("S_CATALOG_KAFKA_HOST")]  # ["localhost:29092"]
+BOOTSTRAP_SERVER = [os.environ.get("S_USER_KAFKA_HOST")]  # ["localhost:29092"]
 AUTO_OFFSET_RESET = "earliest"  # after breaking down consumer restarts reading at the latest commit offset
 GROUP_ID = "wine.user-service"  # consumer needs to be a part of a consumer group
 
