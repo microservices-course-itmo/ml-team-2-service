@@ -23,8 +23,8 @@ from .recommendation_model import model
 
 def build_adjacency_matrix() -> pd.DataFrame:
     print("Start building adjacency matrix")
-    users = User.objects.all()
-    wines = Wine.objects.order_by("pk").all()
+    users = User.objects.exclude(internal_id__isnull=True).all()
+    wines = Wine.objects.exclude(internal_id__isnull=True).order_by("pk").all()
     wine_pk_wine_id = dict(zip([wine.pk for wine in wines], range(len(wines))))
     adjacency_matrix = []
     for user in tqdm(users):
@@ -45,9 +45,8 @@ def build_adjacency_matrix() -> pd.DataFrame:
 
 
 def most_popular_wines(adjacency_matrix: pd.DataFrame) -> List[int]:
-    most_popular = np.argsort(adjacency_matrix.sum(axis=0))
-    most_popular_index = adjacency_matrix.index[most_popular][::-1]
-    return most_popular_index
+    most_popular = np.argsort(adjacency_matrix.drop("user_id", axis=1).sum(axis=0)).index
+    return most_popular
 
 
 if os.environ.get("BUILD_MATRIX", False):
@@ -166,20 +165,20 @@ def get_recommendations(request, user_id):
     """
     Получить рекомендацию по конкретному пользователю
     """
-    global adjacency_matrix
-    # TODO: Вместо ошибки возвращать самые популярные вина
+    global adjacency_matrix, most_popular_index
     try:
         our_user = User.objects.get(internal_id=user_id)
-    except Wine.DoesNotExist:
-        return Response(
-            f"User with id {user_id} does not exist", status.HTTP_400_BAD_REQUEST,
-        )
-    wines_id = model(adjacency_matrix, most_popular_index, our_user.id)
+        wines_id = model(adjacency_matrix, most_popular_index, our_user.id)
+        # wines_id = wine_internal_id_to_wine_external_id(wines_id)
+    except User.DoesNotExist:
+        wines_id = most_popular_index
     offset = int(request.query_params.get("offset", 0))
     amount = int(request.query_params.get("amount", 20))
     print(offset, amount)
     return Response({"wine_id": wines_id[offset:amount]}, status=status.HTTP_200_OK)
 
+def wine_internal_id_to_wine_external_id():
+    pass
 
 @swagger_auto_schema(method="get", auto_schema=None)
 @api_view(["GET"])
