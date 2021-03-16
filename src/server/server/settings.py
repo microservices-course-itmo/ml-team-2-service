@@ -66,12 +66,7 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django.request": {
-            "handlers": ["logstash"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "django": {"handlers": ["console"], "propagate": True,},
+        "django": {"handlers": ["console", "logstash"], "propagate": True,},
     },
 }
 
