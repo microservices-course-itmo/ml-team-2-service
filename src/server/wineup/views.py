@@ -172,7 +172,8 @@ def get_recommendations(request, user_id):
         our_user = User.objects.get(internal_id=user_id)
     except Wine.DoesNotExist:
         return Response(
-            f"User with id {user_id} does not exist", status.HTTP_400_BAD_REQUEST,
+            f"User with id {user_id} does not exist",
+            status.HTTP_400_BAD_REQUEST,
         )
     wines_id = model(adjacency_matrix, most_popular_index, our_user.id)
     offset = int(request.query_params.get("offset", 0))
@@ -207,5 +208,15 @@ def catalog_sync(request):
     """
     output = subprocess.Popen(
         ["python", "src/jobs/catalog_sync.py"], stdout=subprocess.PIPE
+    )
+    return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+def favorites_sync(request):
+    """
+    Run job favorites_sync
+    """
+    output = subprocess.Popen(
+        ["python", "src/jobs/favorites_sync.py"], stdout=subprocess.PIPE
     )
     return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
