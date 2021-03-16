@@ -1,4 +1,4 @@
-import segmentation_pb2 as msg
+import protobuf.segmentation_pb2 as msg
 from kafka import KafkaConsumer, KafkaProducer
 import os
 

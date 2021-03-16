@@ -1,7 +1,7 @@
 from kafka import KafkaConsumer
 import os
-import favorites_updated_event_pb2 as favorites
-import user_updated_event_pb2 as user
+import protobuf.favorites_updated_event_pb2 as favorites
+import protobuf.user_updated_event_pb2 as user
 
 TOPIC_USERS = "user-service-user-updated"  # needed to be changed
 TOPIC_FAVOURITE = "user-service-favorites-updated"
