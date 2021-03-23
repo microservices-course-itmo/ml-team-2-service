@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "com.wine.to.up.user.service.api.message";
+
+import "entity_updated_meta.proto";
+
+message FavoritesUpdatedEvent {
+  int64 userId = 1;
+  string wineId = 2;
+  EntityUpdatedMeta meta = 3;
+}

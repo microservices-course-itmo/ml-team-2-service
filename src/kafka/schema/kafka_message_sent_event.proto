@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+//TODO create-service: set correct package. F.e. for order-service generated classes should be in "com.wine.to.up.order.service.api.message"
+option java_package = "com.wine.to.up.catalog.service.api.message";
+
+import "kafka_message_header.proto";
+
+//event that indicates that message was sent to kafka
+message KafkaMessageSentEvent {
+    int32 transactionId = 1;
+    string message = 2;
+    repeated KafkaMessageHeader headers = 3;
+}
