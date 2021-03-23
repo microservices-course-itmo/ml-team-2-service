@@ -47,7 +47,9 @@ logstash_host = os.environ.get("S_LOGSTASH_HOST")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {"simple": {"format": "%(message)s"},},
+    "formatters": {
+        "simple": {"format": "%(message)s"},
+    },
     "handlers": {
         "console": {
             "level": "DEBUG",
@@ -65,7 +67,13 @@ LOGGING = {
             "tags": ["ml-team-2-service"],  # list of tags. Default: None.
         },
     },
-    "loggers": {"django": {"handlers": ["console", "logstash"], "propagate": True,},},
+
+    "loggers": {
+        "django": {
+            "handlers": ["console", "logstash"],
+            "propagate": True,
+        },
+    },
 }
 
 MIDDLEWARE = [
@@ -121,9 +129,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
