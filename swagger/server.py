@@ -6,7 +6,10 @@ app = Flask(__name__, static_url_path="/static")
 SWAGGER_URL = "/ml-team-2-service/swagger-ui.html"
 API_URL = "/ml-team-2-service/swagger-ui.html/api.yaml"
 
-swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL,)
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+)
 
 
 @app.route("/ml-team-2-service/swagger-ui.html/api.yaml")
