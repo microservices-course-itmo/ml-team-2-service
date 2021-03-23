@@ -29,7 +29,7 @@ def get_message_new_wine(consumer):
         result = new_wine.NewWineSavedMessageSentEvent()
         result.ParseFromString(value)
         print(result)
-        return messages
+    return messages
 
 
 if __name__ == "__main__":

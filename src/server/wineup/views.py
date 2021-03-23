@@ -3,7 +3,9 @@ import subprocess
 from typing import List
 import json
 import logging
+import math
 
+from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -23,8 +25,8 @@ from .recommendation_model import model
 
 def build_adjacency_matrix() -> pd.DataFrame:
     print("Start building adjacency matrix")
-    users = User.objects.all()
-    wines = Wine.objects.order_by("pk").all()
+    users = User.objects.exclude(internal_id__isnull=True).all()
+    wines = Wine.objects.exclude(internal_id__isnull=True).order_by("pk").all()
     wine_pk_wine_id = dict(zip([wine.pk for wine in wines], range(len(wines))))
     adjacency_matrix = []
     for user in tqdm(users):
@@ -45,9 +47,10 @@ def build_adjacency_matrix() -> pd.DataFrame:
 
 
 def most_popular_wines(adjacency_matrix: pd.DataFrame) -> List[int]:
-    most_popular = np.argsort(adjacency_matrix.sum(axis=0))
-    most_popular_index = adjacency_matrix.index[most_popular][::-1]
-    return most_popular_index
+    most_popular = np.argsort(
+        adjacency_matrix.drop("user_id", axis=1).sum(axis=0)
+    ).index
+    return most_popular
 
 
 if os.environ.get("BUILD_MATRIX", False):
@@ -186,24 +189,64 @@ def get_or_create_review(wine, user):
     return review
 
 
+@swagger_auto_schema(
+    method="get",
+    manual_parameters=[
+        openapi.Parameter(
+            "user_id",
+            openapi.IN_PATH,
+            required=True,
+            description="User id",
+            type=openapi.TYPE_INTEGER,
+        ),
+        openapi.Parameter(
+            "page",
+            openapi.IN_QUERY,
+            required=True,
+            description="Number of page to retrieve. Starts from 0",
+            type=openapi.TYPE_INTEGER,
+        ),
+        openapi.Parameter(
+            "size",
+            openapi.IN_QUERY,
+            required=True,
+            description="Number of elements in one page",
+            type=openapi.TYPE_INTEGER,
+        ),
+    ],
+)
 @api_view(["GET"])
-def get_recommendations(request, user_id):
+def get_recommendations(request, **kwargs):
     """
     Получить рекомендацию по конкретному пользователю
     """
-    global adjacency_matrix
-    # TODO: Вместо ошибки возвращать самые популярные вина
+    user_id = int(kwargs["user_id"])
+    page = int(request.query_params["page"])
+    size = int(request.query_params["size"])
+    global adjacency_matrix, most_popular_index
     try:
         our_user = User.objects.get(internal_id=user_id)
-    except Wine.DoesNotExist:
-        return Response(
-            f"User with id {user_id} does not exist", status.HTTP_400_BAD_REQUEST,
-        )
-    wines_id = model(adjacency_matrix, most_popular_index, our_user.id)
-    offset = int(request.query_params.get("offset", 0))
-    amount = int(request.query_params.get("amount", 20))
-    print(offset, amount)
-    return Response({"wine_id": wines_id[offset:amount]}, status=status.HTTP_200_OK)
+        wines_ids = model(adjacency_matrix, most_popular_index, our_user.id)
+    except User.DoesNotExist:
+        wines_ids = most_popular_index
+    total = len(wines_ids)
+    total_pages = math.ceil(len(wines_ids) / size)
+    wines_ids = wines_ids[page * size : (page + 1) * size]
+    wines_ids = wine_internal_id_to_wine_external_id(wines_ids)
+    result = {
+        "content": wines_ids,
+        "page": page,
+        "size": size,
+        "total": total,
+        "totalPages": total_pages,
+    }
+    return Response(result, status=status.HTTP_200_OK)
+
+
+def wine_internal_id_to_wine_external_id(wines_ids: List[int]) -> List[int]:
+    wines = Wine.objects.filter(id__in=wines_ids)
+    our_wine_id_to_catalog_wine_id = {wine.pk: wine.internal_id for wine in wines}
+    return [our_wine_id_to_catalog_wine_id[our_id] for our_id in wines_ids]
 
 
 @swagger_auto_schema(method="get", auto_schema=None)
@@ -211,9 +254,10 @@ def get_recommendations(request, user_id):
 def print_matrix(request):
     global adjacency_matrix
     logging.info(adjacency_matrix)
-    return Response({}, status.HTTP_200_OK)
+    return Response(str(adjacency_matrix), status.HTTP_200_OK)
 
 
+@swagger_auto_schema(method="get", auto_schema=None)
 @api_view(["GET"])
 def user_sync(request):
     """
@@ -225,6 +269,7 @@ def user_sync(request):
     return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
 
 
+@swagger_auto_schema(method="get", auto_schema=None)
 @api_view(["GET"])
 def catalog_sync(request):
     """

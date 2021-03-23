@@ -22,7 +22,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
     serialized_options=b"\n*com.wine.to.up.catalog.service.api.message",
     create_key=_descriptor._internal_create_key,
     serialized_pb=b'\n\x1ekafka_message_sent_event.proto\x1a\x1akafka_message_header.proto"e\n\x15KafkaMessageSentEvent\x12\x15\n\rtransactionId\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12$\n\x07headers\x18\x03 \x03(\x0b\x32\x13.KafkaMessageHeaderB,\n*com.wine.to.up.catalog.service.api.messageb\x06proto3',
-    dependencies=[kafka__message__header__pb2.DESCRIPTOR,],
+    dependencies=[
+        kafka__message__header__pb2.DESCRIPTOR,
+    ],
 )
 
 
