@@ -29,7 +29,9 @@ def model(
             similar_users = similar_users[::-1][:TOP_N]
             similar_users_index = adjacency_matrix_crop.index[similar_users]
 
-            wine_recommended_sum = adjacency_matrix.iloc[similar_users_index].sum(axis=0)
+            wine_recommended_sum = adjacency_matrix.iloc[similar_users_index].sum(
+                axis=0
+            )
             wine_recommended_sum = wine_recommended_sum[wine_recommended_sum > 0]
 
             recommended_wines_sorted = np.argsort(wine_recommended_sum)

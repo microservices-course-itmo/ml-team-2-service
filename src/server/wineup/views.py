@@ -47,7 +47,9 @@ def build_adjacency_matrix() -> pd.DataFrame:
 
 
 def most_popular_wines(adjacency_matrix: pd.DataFrame) -> List[int]:
-    most_popular = np.argsort(adjacency_matrix.drop("user_id", axis=1).sum(axis=0)).index
+    most_popular = np.argsort(
+        adjacency_matrix.drop("user_id", axis=1).sum(axis=0)
+    ).index
     return most_popular
 
 
