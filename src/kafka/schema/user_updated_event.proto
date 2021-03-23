@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "com.wine.to.up.user.service.api.message";
+
+import "entity_updated_meta.proto";
+
+message UserUpdatedEvent {
+  int64 userId = 1;
+  string phoneNumber = 2;
+  string name = 3;
+  string birthdate = 4;
+  int64 cityId = 5;
+  EntityUpdatedMeta meta = 6;
+}

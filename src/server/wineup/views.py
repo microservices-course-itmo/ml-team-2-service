@@ -3,7 +3,9 @@ import subprocess
 from typing import List
 import json
 import logging
+import math
 
+from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -160,22 +162,57 @@ def review_list(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(
+    method="get",
+    manual_parameters=[
+        openapi.Parameter(
+            "user_id",
+            openapi.IN_PATH,
+            required=True,
+            description="User id",
+            type=openapi.TYPE_INTEGER,
+        ),
+        openapi.Parameter(
+            "page",
+            openapi.IN_QUERY,
+            required=True,
+            description="Number of page to retrieve. Starts from 0",
+            type=openapi.TYPE_INTEGER,
+        ),
+        openapi.Parameter(
+            "size",
+            openapi.IN_QUERY,
+            required=True,
+            description="Number of elements in one page",
+            type=openapi.TYPE_INTEGER,
+        ),
+    ],
+)
 @api_view(["GET"])
-def get_recommendations(request, user_id):
+def get_recommendations(request, **kwargs):
     """
     Получить рекомендацию по конкретному пользователю
     """
+    user_id = int(kwargs["user_id"])
+    page = int(request.query_params["page"])
+    size = int(request.query_params["size"])
     global adjacency_matrix, most_popular_index
+    # TODO: Вместо ошибки возвращать самые популярные вина
     try:
         our_user = User.objects.get(internal_id=user_id)
         wines_id = model(adjacency_matrix, most_popular_index, our_user.id)
         # wines_id = wine_internal_id_to_wine_external_id(wines_id)
     except User.DoesNotExist:
         wines_id = most_popular_index
-    offset = int(request.query_params.get("offset", 0))
-    amount = int(request.query_params.get("amount", 20))
-    print(offset, amount)
-    return Response({"wine_id": wines_id[offset:amount]}, status=status.HTTP_200_OK)
+    content = {"wine_id": wines_id[page * size : (page + 1) * size]}
+    result = {
+        "content": content,
+        "page": page,
+        "size": size,
+        "total": len(wines_id),
+        "totalPages": math.ceil(len(wines_id) / size),
+    }
+    return Response(result, status=status.HTTP_200_OK)
 
 def wine_internal_id_to_wine_external_id():
     pass
@@ -185,9 +222,10 @@ def wine_internal_id_to_wine_external_id():
 def print_matrix(request):
     global adjacency_matrix
     logging.info(adjacency_matrix)
-    return Response({}, status.HTTP_200_OK)
+    return Response(str(adjacency_matrix), status.HTTP_200_OK)
 
 
+@swagger_auto_schema(method="get", auto_schema=None)
 @api_view(["GET"])
 def user_sync(request):
     """
@@ -199,6 +237,7 @@ def user_sync(request):
     return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
 
 
+@swagger_auto_schema(method="get", auto_schema=None)
 @api_view(["GET"])
 def catalog_sync(request):
     """
