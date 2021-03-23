@@ -79,13 +79,17 @@ def user_list(request):
             if serializer.is_valid():
                 serializer.save()
                 users.append(serializer.data)
-                global adjacency_matrix
-                adjacency_matrix.loc[len(adjacency_matrix)] = [
-                    int(serializer.data["id"])
-                ] + [None] * (adjacency_matrix.shape[1] - 1)
+                add_user_in_matrix(serializer.data["id"])
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(json.dumps(users), status=status.HTTP_200_OK)
+
+
+def add_user_in_matrix(id_):
+    global adjacency_matrix
+    adjacency_matrix.loc[len(adjacency_matrix)] = [int(id_)] + [None] * (
+        adjacency_matrix.shape[1] - 1
+    )
 
 
 # TODO: добавить матчинг по названиям
@@ -109,59 +113,80 @@ def wine_list(request):
             if serializer.is_valid():
                 serializer.save()
                 wines.append(serializer.data)
-                global adjacency_matrix
-                adjacency_matrix[serializer.data["id"]] = [
-                    None
-                ] * adjacency_matrix.shape[0]
+                add_wine_in_matrix(serializer.data["id"])
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(json.dumps(wines), status=status.HTTP_200_OK)
+
+
+def add_wine_in_matrix(id_):
+    global adjacency_matrix
+    adjacency_matrix[id_] = [None] * adjacency_matrix.shape[0]
 
 
 @swagger_auto_schema(method="post", auto_schema=None)
 @api_view(["POST"])
 def review_list(request):
     """
-    Добавить или изменить оценку пользователя по конкретному вину
+    Добавить или изменить оценки пользователей по винам
     """
-    serializer = ReviewSerializer(data=request.data)
-    if serializer.is_valid():
-        try:
-            wine = Wine.objects.get(internal_id__exact=serializer.data["wine"])
-            user = User.objects.get(internal_id__exact=serializer.data["user"])
-        except Wine.DoesNotExist:
-            return Response(
-                f"Wine with id {serializer.data['wine']} does not exist",
-                status.HTTP_400_BAD_REQUEST,
-            )
-        except User.DoesNotExist:
-            return Response(
-                f"User with id {serializer.data['user']} does not exist",
-                status.HTTP_400_BAD_REQUEST,
-            )
-        try:
-            review = Review.objects.get(wine=wine, user=user)
-        except Review.DoesNotExist:
-            review = Review()
-        serializer = ReviewModelSerializer(
-            review,
-            data={
-                "rating": request.data["rating"],
-                "variants": request.data["variants"],
-                "wine": wine.pk,
-                "user": user.pk,
-            },
-        )
+    data = json.loads(request.data)
+    if not isinstance(data, list):
+        return Response("Data must be array", status=status.HTTP_400_BAD_REQUEST)
+    for review in data:
+        serializer = ReviewSerializer(data=review)
         if serializer.is_valid():
-            serializer.save()
-            global adjacency_matrix, most_popular_index
-            index = adjacency_matrix[adjacency_matrix["user_id"] == user.pk].index[0]
-            adjacency_matrix.loc[index, wine.pk] = float(
-                request.data["rating"]
-            ) / float(request.data["variants"])
-            most_popular_index = most_popular_wines(adjacency_matrix)
-            return Response({"result": "ok"}, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            wine = get_or_create_wine(internal_id=serializer.data["wine"])
+            user = get_or_create_user(internal_id=serializer.data["user"])
+            review_model = get_or_create_review(wine, user)
+            serializer = ReviewModelSerializer(
+                review_model,
+                data={
+                    "rating": review["rating"],
+                    "variants": review["variants"],
+                    "wine": wine.pk,
+                    "user": user.pk,
+                },
+            )
+            if serializer.is_valid():
+                serializer.save()
+                global adjacency_matrix, most_popular_index
+                index = adjacency_matrix[adjacency_matrix["user_id"] == user.pk].index[
+                    0
+                ]
+                adjacency_matrix.loc[index, wine.pk] = float(review["rating"]) / float(
+                    review["variants"]
+                )
+                most_popular_index = most_popular_wines(adjacency_matrix)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"result": "ok"}, status=status.HTTP_200_OK)
+
+
+def get_or_create_wine(internal_id):
+    try:
+        wine = Wine.objects.get(internal_id__exact=internal_id)
+    except Wine.DoesNotExist:
+        wine = Wine.objects.create(internal_id=internal_id)
+        add_wine_in_matrix(wine.pk)
+    return wine
+
+
+def get_or_create_user(internal_id):
+    try:
+        user = User.objects.get(internal_id__exact=internal_id)
+    except User.DoesNotExist:
+        user = User.objects.create(internal_id=internal_id)
+        add_user_in_matrix(user.pk)
+    return user
+
+
+def get_or_create_review(wine, user):
+    try:
+        review = Review.objects.get(wine=wine, user=user)
+    except Review.DoesNotExist:
+        review = Review()
+    return review
 
 
 @swagger_auto_schema(

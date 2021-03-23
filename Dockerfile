@@ -29,6 +29,9 @@ COPY . .
 ENTRYPOINT bash -c "python3 src/server/manage.py migrate && \
                     python3 src/server/manage.py createsuperuser --email admin@example.com --username admin --noinput ; \
                     BUILD_MATRIX=1 python3 src/server/manage.py runserver localhost:8081 & \
+                    python3 src/kafka/catalog_consumer.py & \
+                    python3 src/kafka/user_consumer.py & \
+                    python3 src/kafka/favourites_consumer.py & \
                     nginx"
 
 EXPOSE 80
