@@ -109,10 +109,11 @@ def wine_list(request):
             if serializer.is_valid():
                 serializer.save()
                 wines.append(serializer.data)
-                global adjacency_matrix
+                global adjacency_matrix, most_popular_index
                 adjacency_matrix[serializer.data["id"]] = [
                     None
                 ] * adjacency_matrix.shape[0]
+                most_popular_index = most_popular_wines(adjacency_matrix)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(json.dumps(wines), status=status.HTTP_200_OK)
