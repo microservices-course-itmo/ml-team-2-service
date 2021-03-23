@@ -30,9 +30,9 @@ def get_message_favourites(consumer):
     for message in consumer:
         message = message.value
         messages.append(message)
-        link = favorites.FavoritesUpdatedEvent()
-        link.ParseFromString(message)
-        print(link)
+        result = favorites.FavoritesUpdatedEvent()
+        result.ParseFromString(message)
+        print(result)
     return messages
 
 
@@ -42,9 +42,9 @@ def get_message_user(consumer):
     for message in consumer:
         message = message.value
         messages.append(message)
-        link = user.UserUpdatedEvent()
-        link.ParseFromString(message)
-        print(link)
+        result = user.UserUpdatedEvent()
+        result.ParseFromString(message)
+        print(result)
     return messages
 
 

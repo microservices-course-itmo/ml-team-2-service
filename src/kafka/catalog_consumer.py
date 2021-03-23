@@ -1,5 +1,5 @@
-import protobuf.segmentation_pb2 as msg
-from kafka import KafkaConsumer, KafkaProducer
+from kafka import KafkaConsumer
+import protobuf.new_wine_saved_message_sent_event_pb2 as new_wine
 import os
 
 """
@@ -12,68 +12,25 @@ BOOTSTRAP_SERVER = [os.environ.get("S_CATALOG_KAFKA_HOST")]
 AUTO_OFFSET_RESET = "earliest"  # after breaking down consumer restarts reading at the latest commit offset
 GROUP_ID = "wine.catalog-service"  # consumer needs to be a part of a consumer group
 
-log = []
-
-
-def connect_kafka_producer():
-    _producer = None
-    try:
-        _producer = KafkaProducer(bootstrap_servers=["kafka:29092"])
-    except Exception:
-        log.append("producer connection failed")
-        pass
-    finally:
-        log.append("producer connection success")
-        return _producer
-
-
-def publish_message(producer_instance, topic_name, data):
-    try:
-        print(data)
-        producer_instance.send(topic, data.SerializeToString())
-        producer_instance.flush()
-        log.append("Message successfully sent")
-    except Exception as e:
-        log.append(str(e))
-
-
-def get_message(consumer):
-    links = []
-    for message in consumer:
-        value = message.value
-        link = msg.Segmentation()
-        link.ParseFromString(value)
-        log.append("Message successfully received")
-        log.append(str(link))
-        links.append(link)
-        return links
-
-
-producer = connect_kafka_producer()
-print("Poducer innitialized")
-consumer = KafkaConsumer(
+consumer_new_wine = KafkaConsumer(
     TOPIC,
     bootstrap_servers=BOOTSTRAP_SERVER,
     auto_offset_reset=AUTO_OFFSET_RESET,
     group_id=GROUP_ID,
 )
 
-segm = msg.Segmentation()
 
-segm.segm_link = "http://nowhere"
-segm.mask_link = "http://non-existent"
-segm.id = 1
+def get_message_new_wine(consumer):
+    print("New wines")
+    messages = []
+    for message in consumer:
+        value = message.value
+        messages.append(message)
+        result = new_wine.NewWineSavedMessageSentEvent()
+        result.ParseFromString(value)
+        print(result)
+    return messages
 
-# serialized = segm.SerializeToString()
 
-log.append(str(segm))
-
-publish_message(producer, TOPIC, segm)  #'msg', str(serialized))
-links = get_message(consumer)
-
-log.append(str(links[0]))
-
-d = {}
-for i in range(len(log)):
-    d.update({"line " + str(i): log[i]})
-print(links)
+if __name__ == "__main__":
+    get_message_new_wine(consumer_new_wine)

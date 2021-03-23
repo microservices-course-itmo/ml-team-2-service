@@ -22,7 +22,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
     serialized_options=b"\n'com.wine.to.up.user.service.api.message",
     create_key=_descriptor._internal_create_key,
     serialized_pb=b"\n\x18user_updated_event.proto\x1a\x19\x65ntity_updated_meta.proto\"\x8a\x01\n\x10UserUpdatedEvent\x12\x0e\n\x06userId\x18\x01 \x01(\x03\x12\x13\n\x0bphoneNumber\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x11\n\tbirthdate\x18\x04 \x01(\t\x12\x0e\n\x06\x63ityId\x18\x05 \x01(\x03\x12 \n\x04meta\x18\x06 \x01(\x0b\x32\x12.EntityUpdatedMetaB)\n'com.wine.to.up.user.service.api.messageb\x06proto3",
-    dependencies=[entity__updated__meta__pb2.DESCRIPTOR,],
+    dependencies=[
+        entity__updated__meta__pb2.DESCRIPTOR,
+    ],
 )
 
 
