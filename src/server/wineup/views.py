@@ -197,25 +197,30 @@ def get_recommendations(request, **kwargs):
     page = int(request.query_params["page"])
     size = int(request.query_params["size"])
     global adjacency_matrix, most_popular_index
-    # TODO: Вместо ошибки возвращать самые популярные вина
     try:
         our_user = User.objects.get(internal_id=user_id)
-        wines_id = model(adjacency_matrix, most_popular_index, our_user.id)
-        # wines_id = wine_internal_id_to_wine_external_id(wines_id)
+        wines_ids = model(adjacency_matrix, most_popular_index, our_user.id)
     except User.DoesNotExist:
-        wines_id = most_popular_index
-    content = {"wine_id": wines_id[page * size : (page + 1) * size]}
+        wines_ids = most_popular_index
+    total = len(wines_ids)
+    total_pages = math.ceil(len(wines_ids) / size)
+    wines_ids = wines_ids[page * size : (page + 1) * size]
+    wines_ids = wine_internal_id_to_wine_external_id(wines_ids)
     result = {
-        "content": content,
+        "content": wines_ids,
         "page": page,
         "size": size,
-        "total": len(wines_id),
-        "totalPages": math.ceil(len(wines_id) / size),
+        "total": total,
+        "totalPages": total_pages,
     }
     return Response(result, status=status.HTTP_200_OK)
 
-def wine_internal_id_to_wine_external_id():
-    pass
+
+def wine_internal_id_to_wine_external_id(wines_ids: List[int]) -> List[int]:
+    wines = Wine.objects.filter(id__in=wines_ids)
+    our_wine_id_to_catalog_wine_id = {wine.pk: wine.internal_id for wine in wines}
+    return [our_wine_id_to_catalog_wine_id[our_id] for our_id in wines_ids]
+
 
 @swagger_auto_schema(method="get", auto_schema=None)
 @api_view(["GET"])
