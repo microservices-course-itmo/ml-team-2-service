@@ -130,7 +130,7 @@ def review_list(request):
     """
     Добавить или изменить оценки пользователей по винам
     """
-    data = request.data
+    data = json.loads(request.data)
     if not isinstance(data, list):
         return Response("Data must be array", status=status.HTTP_400_BAD_REQUEST)
     for review in data:
