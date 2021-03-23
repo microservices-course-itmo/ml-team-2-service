@@ -67,7 +67,6 @@ LOGGING = {
             "tags": ["ml-team-2-service"],  # list of tags. Default: None.
         },
     },
-
     "loggers": {
         "django": {
             "handlers": ["console", "logstash"],
