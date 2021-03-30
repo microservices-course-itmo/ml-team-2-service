@@ -3,26 +3,28 @@ import json
 import requests
 from tqdm import tqdm
 import logging
+import logstash
 
 OUR_ADDRESS = os.environ["S_OUR_ADDRESS"]
 CATALOG_ADDRESS = os.environ["S_CATALOG_ADDRESS"]
+logstash_host = os.environ.get("S_LOGSTASH_HOST")
 
 
 def get_catalog_wines():
-    logging.info("Started getting catalog wines")
+    logger.info("Started getting catalog wines")
     catalog_wines = requests.get(f"{CATALOG_ADDRESS}/wine/")
     if catalog_wines.status_code != 200:
         raise Exception("catalog_wines.status_code is not 200")
-    logging.info("Finished getting catalog wines")
+    logger.info("Finished getting catalog wines")
     return catalog_wines.json()
 
 
 def get_our_wines():
-    logging.info("Started getting our wines")
+    logger.info("Started getting our wines")
     our_wines = requests.get(f"{OUR_ADDRESS}/wines/")
     if our_wines.status_code != 200:
         raise Exception("our_wines.status_code is not 200")
-    logging.info("Finished getting our wines")
+    logger.info("Finished getting our wines")
     return our_wines.json()
 
 
@@ -36,7 +38,7 @@ def main():
     )
     new_ids = catalog_ids - our_ids
 
-    logging.info(f"Started adding new wines. Will be added {len(new_ids)} wines")
+    logger.info(f"Started adding new wines. Will be added {len(new_ids)} wines")
     request_body = []
     for wine in tqdm(catalog_wines):
         if wine["wine_id"] not in new_ids:
@@ -44,13 +46,18 @@ def main():
         request_body.append({"internal_id": wine["wine_id"], "all_names": wine["name"]})
     response = requests.post(f"{OUR_ADDRESS}/wines/", json=json.dumps(request_body))
     if response.status_code != 200:
-        logging.error(f"Adding wines failed")
-        logging.error(response.status_code)
-        logging.error(response.text)
+        logger.error(f"Adding wines failed")
+        logger.error(response.status_code)
+        logger.error(response.text)
         raise Exception("Adding wines failed")
-    logging.info(f"Finished adding new wines")
+    logger.info(f"Finished adding new wines")
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger('kafka_reader')
+    logger.addHandler(logging.StreamHandler())
+    logger.addHandler(logstash.TCPLogstashHandler(host=logstash_host.split(":")[0],
+                                                  port=int(logstash_host.split(":")[1]),
+                                                  version=1))
     main()
