@@ -301,3 +301,16 @@ def catalog_sync(request):
         ["python", "src/jobs/catalog_sync.py"], stdout=subprocess.PIPE
     )
     return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
+
+
+
+@swagger_auto_schema(method="get", auto_schema=None)
+@api_view(["GET"])
+def favorites_sync(request):
+    """
+    Run job favorites_sync
+    """
+    output = subprocess.Popen(
+        ["python", "src/jobs/favorites_sync.py"], stdout=subprocess.PIPE
+    )
+    return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
