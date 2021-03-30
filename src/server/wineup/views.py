@@ -125,42 +125,64 @@ def add_wine_in_matrix(id_):
 
 
 @swagger_auto_schema(method="post", auto_schema=None)
-@api_view(["POST"])
+@api_view(["POST", "DELETE"])
 def review_list(request):
     """
     Добавить или изменить оценки пользователей по винам
     """
-    data = json.loads(request.data)
-    if not isinstance(data, list):
-        return Response("Data must be array", status=status.HTTP_400_BAD_REQUEST)
-    for review in data:
-        serializer = ReviewSerializer(data=review)
-        if serializer.is_valid():
-            wine = get_or_create_wine(internal_id=serializer.data["wine"])
-            user = get_or_create_user(internal_id=serializer.data["user"])
-            review_model = get_or_create_review(wine, user)
-            serializer = ReviewModelSerializer(
-                review_model,
-                data={
-                    "rating": review["rating"],
-                    "variants": review["variants"],
-                    "wine": wine.pk,
-                    "user": user.pk,
-                },
-            )
+    global adjacency_matrix, most_popular_index
+    if request.method == "POST":
+        data = json.loads(request.data)
+        if not isinstance(data, list):
+            return Response("Data must be array", status=status.HTTP_400_BAD_REQUEST)
+        for review in data:
+            serializer = ReviewSerializer(data=review)
             if serializer.is_valid():
-                serializer.save()
-                global adjacency_matrix, most_popular_index
-                index = adjacency_matrix[adjacency_matrix["user_id"] == user.pk].index[
-                    0
-                ]
-                adjacency_matrix.loc[index, wine.pk] = float(review["rating"]) / float(
-                    review["variants"]
+                wine = get_or_create_wine(internal_id=serializer.data["wine"])
+                user = get_or_create_user(internal_id=serializer.data["user"])
+                review_model = get_or_create_review(wine, user)
+                serializer = ReviewModelSerializer(
+                    review_model,
+                    data={
+                        "rating": review["rating"],
+                        "variants": review["variants"],
+                        "wine": wine.pk,
+                        "user": user.pk,
+                    },
                 )
+                if serializer.is_valid():
+                    serializer.save()
+                    index = adjacency_matrix[adjacency_matrix["user_id"] == user.pk].index[
+                        0
+                    ]
+                    adjacency_matrix.loc[index, wine.pk] = float(review["rating"]) / float(
+                        review["variants"]
+                    )
+                    most_popular_index = most_popular_wines(adjacency_matrix)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"result": "ok"}, status=status.HTTP_200_OK)
+    elif request.method == "DELETE":
+        data = json.loads(request.data)
+        user_id = data["user_id"]
+        wine_id = data.get("wine_id", None)
+        user = get_or_create_user(internal_id=user_id)
+        index = adjacency_matrix[adjacency_matrix["user_id"] == user.pk].index[
+            0
+        ]
+        if wine_id == None:
+            reviews = Review.objects.filter(user_id=user.pk)
+            for review in reviews:
+                adjacency_matrix.loc[index, review.wine_id] = None
                 most_popular_index = most_popular_wines(adjacency_matrix)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({"result": "ok"}, status=status.HTTP_200_OK)
+                review.delete()
+        else:
+            wine = get_or_create_wine(internal_id=wine_id)
+            review_model = get_or_create_review(wine, user)
+            adjacency_matrix.loc[index, review_model.wine_id] = None
+            most_popular_index = most_popular_wines(adjacency_matrix)
+            review_model.delete()
+        return Response({"result": "ok"}, status=status.HTTP_200_OK)
 
 
 def get_or_create_wine(internal_id):
