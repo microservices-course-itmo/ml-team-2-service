@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
 from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
@@ -33,6 +34,8 @@ schema_view = get_schema_view(
     # permission_classes=[permissions.AllowAny, permissions.IsAuthenticated, IsOwner],
 )
 
+path_prefix = os.environ.get("METHODS_PATH_PREFIX", "")
+
 urlpatterns = [
     path("ml-team-2-service/admin/", admin.site.urls),
     path(
@@ -40,5 +43,5 @@ urlpatterns = [
         schema_view.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
-    path("", include("wineup.urls")),
+    path(f"{path_prefix}", include("wineup.urls")),
 ]
