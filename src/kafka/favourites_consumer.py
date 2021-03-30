@@ -44,6 +44,24 @@ def get_message_favourites(consumer):
                     logging.error(f"Code: {response.status_code}, response: {response.text}")
                 else:
                     logging.info(f"Successfully adding new review with user id {result.userId} and wine id {result.wineId}")
+            elif result.meta.operation_type == OperationType.DELETE:
+                request_body = {"wine_id": result.wineId, "user_id": result.userId}
+                response = requests.delete(f"{OUR_ADDRESS}/review/", json=json.dumps(request_body))
+                if response.status_code != 200:
+                    logging.error(f"Deleting review with user id {result.userId} and wine id {result.wineId} failed")
+                    logging.error(f"Code: {response.status_code}, response: {response.text}")
+                else:
+                    logging.info(
+                        f"Successfully deleting review with user id {result.userId} and wine id {result.wineId}")
+            elif result.meta.operation_type == OperationType.CLEAR:
+                request_body = {"user_id": result.userId}
+                response = requests.delete(f"{OUR_ADDRESS}/review/", json=json.dumps(request_body))
+                if response.status_code != 200:
+                    logging.error(f"Deleting all reviews with user id {result.userId} failed")
+                    logging.error(f"Code: {response.status_code}, response: {response.text}")
+                else:
+                    logging.info(
+                        f"Successfully deleting all reviews with user id {result.userId}")
             else:
                 logging.info("Skip not create operation type")
         except Exception:
