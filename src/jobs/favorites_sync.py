@@ -11,27 +11,21 @@ logstash_host = os.environ.get("S_LOGSTASH_HOST")
 
 
 def get_app_favorites():
-    # TODO: получение любимых вин
     logger.info("Started getting app users")
-    app_users_id = []
-    current_page = 0
-    total_pages = 1
-    while current_page < total_pages:
-        logger.info(f"Current page - {current_page} of {total_pages}")
-        app_users = requests.get(
-            f"{USER_ADDRESS}/internal/users?page={current_page}&size=1"
-        )
-        if app_users.status_code != 200:
-            raise Exception("app_users.status_code is not 200")
+    favorites = []
+    app_users = requests.get(f"{USER_ADDRESS}/internal/users/favorites")
+    if app_users.status_code != 200:
+        raise Exception("app_users.status_code is not 200")
 
-        app_users_dict = app_users.json()
-        app_users_id.extend([user["id"] for user in app_users_dict["content"]])
+    app_users_favorites = app_users.json()
 
-        total_pages = app_users_dict["totalPages"]
-        current_page += 1
+    for user_favorites in app_users_favorites:
+        user_id = user_favorites["userId"]
+        for wine_id in user_favorites["favoriteIds"]:
+            favorites.append((wine_id, user_id))
 
     logger.info("Finished getting app users")
-    return app_users_id
+    return favorites
 
 
 def main():
