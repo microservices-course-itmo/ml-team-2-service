@@ -1,4 +1,4 @@
-FROM python:3.7.9
+FROM kinoooshnik/ml-team-2-service:ml-team-2-service
 
 WORKDIR /usr/src/app
 
