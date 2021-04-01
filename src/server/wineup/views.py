@@ -298,6 +298,7 @@ def catalog_sync(request):
     """
     Run job catalog_sync
     """
+    return Response({}, status=status.HTTP_200_OK)
     output = subprocess.Popen(
         ["python", "src/jobs/catalog_sync.py"], stdout=subprocess.PIPE
     )
