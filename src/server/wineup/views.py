@@ -139,9 +139,9 @@ def review_list(request):
         for review in data:
             serializer = ReviewSerializer(data=review)
             if serializer.is_valid():
-                wine = get_or_create_wine(internal_id=serializer.data["wine"])
-                user = get_or_create_user(internal_id=serializer.data["user"])
-                review_model = get_or_create_review(wine, user)
+                wine = Wine.objects.get(internal_id__exact=serializer.data["wine"])
+                user = User.objects.get(internal_id__exact=serializer.data["user"])
+                review_model = review = Review.objects.get(wine=wine, user=user)
                 serializer = ReviewModelSerializer(
                     review_model,
                     data={
@@ -167,7 +167,7 @@ def review_list(request):
         data = json.loads(request.data)
         user_id = data["user_id"]
         wine_id = data.get("wine_id", None)
-        user = get_or_create_user(internal_id=user_id)
+        user = User.objects.get(internal_id__exact=user_id)
         index = adjacency_matrix[adjacency_matrix["user_id"] == user.pk].index[
             0
         ]
@@ -178,38 +178,12 @@ def review_list(request):
                 most_popular_index = most_popular_wines(adjacency_matrix)
                 review.delete()
         else:
-            wine = get_or_create_wine(internal_id=wine_id)
-            review_model = get_or_create_review(wine, user)
+            wine = Wine.objects.get(internal_id__exact=wine_id)
+            review_model = Review.objects.get(wine=wine, user=user)
             adjacency_matrix.loc[index, review_model.wine_id] = None
             most_popular_index = most_popular_wines(adjacency_matrix)
             review_model.delete()
         return Response({"result": "ok"}, status=status.HTTP_200_OK)
-
-
-def get_or_create_wine(internal_id):
-    try:
-        wine = Wine.objects.get(internal_id__exact=internal_id)
-    except Wine.DoesNotExist:
-        wine = Wine.objects.create(internal_id=internal_id)
-        add_wine_in_matrix(wine.pk)
-    return wine
-
-
-def get_or_create_user(internal_id):
-    try:
-        user = User.objects.get(internal_id__exact=internal_id)
-    except User.DoesNotExist:
-        user = User.objects.create(internal_id=internal_id)
-        add_user_in_matrix(user.pk)
-    return user
-
-
-def get_or_create_review(wine, user):
-    try:
-        review = Review.objects.get(wine=wine, user=user)
-    except Review.DoesNotExist:
-        review = Review()
-    return review
 
 
 @swagger_auto_schema(
