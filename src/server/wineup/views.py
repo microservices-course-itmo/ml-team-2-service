@@ -125,6 +125,7 @@ def add_wine_in_matrix(id_):
 
 
 @swagger_auto_schema(method="post", auto_schema=None)
+@swagger_auto_schema(method="delete", auto_schema=None)
 @api_view(["POST", "DELETE"])
 def review_list(request):
     """
