@@ -13,7 +13,7 @@ def get_app_favorites():
     favorites = []
     app_users = requests.get(f"{USER_ADDRESS}/internal/users/favorites")
     if app_users.status_code != 200:
-        raise Exception("app_users.status_code is not 200")
+        raise Exception(f"app_users.status_code is not 200, {app_users.status_code}, {app_users}, {app_users.text}")
 
     app_users_favorites = app_users.json()
 

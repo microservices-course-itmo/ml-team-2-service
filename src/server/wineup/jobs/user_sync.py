@@ -19,7 +19,7 @@ def get_app_users_id():
             f"{USER_ADDRESS}/internal/users?page={current_page}&size=1"
         )
         if app_users.status_code != 200:
-            raise Exception("app_users.status_code is not 200")
+            raise Exception(f"app_users.status_code is not 200, {app_users.status_code}, {app_users}, {app_users.text}")
 
         app_users_dict = app_users.json()
         app_users_id.extend([user["id"] for user in app_users_dict["content"]])
