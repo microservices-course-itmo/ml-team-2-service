@@ -15,11 +15,10 @@ def get_app_users_id():
     total_pages = 1
     while current_page < total_pages:
         logging.warning(f"Current page - {current_page} of {total_pages}")
-        app_users = requests.get(
-            f"{USER_ADDRESS}/internal/users?page={current_page}&size=1"
-        )
+        url = f"{USER_ADDRESS}/internal/users?page={current_page}&size=20"
+        app_users = requests.get(url)
         if app_users.status_code != 200:
-            raise Exception(f"app_users.status_code is not 200, {app_users.status_code}, {app_users}, {app_users.text}")
+            raise Exception(f"app_users.status_code is not 200, {app_users.status_code}, {app_users}, {app_users.text}, {url}")
 
         app_users_dict = app_users.json()
         app_users_id.extend([user["id"] for user in app_users_dict["content"]])
