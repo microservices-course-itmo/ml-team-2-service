@@ -21,6 +21,10 @@ from tqdm import tqdm
 import pandas as pd
 import numpy as np
 from .recommendation_model import model
+from .jobs.user_sync import user_sync_job
+from .jobs.favorites_sync import favorites_sync_job
+
+logger = logging.getLogger(__name__)
 
 
 def build_adjacency_matrix() -> pd.DataFrame:
@@ -280,7 +284,7 @@ def wine_internal_id_to_wine_external_id(wines_ids: List[int]) -> List[int]:
 @api_view(["GET"])
 def print_matrix(request):
     global adjacency_matrix
-    logging.info(adjacency_matrix)
+    logger.warning(adjacency_matrix)
     return Response(str(adjacency_matrix), status.HTTP_200_OK)
 
 
@@ -290,10 +294,8 @@ def user_sync(request):
     """
     Run job user_sync
     """
-    output = subprocess.Popen(
-        ["python", "src/jobs/user_sync.py"], stdout=subprocess.PIPE
-    )
-    return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
+    user_sync_job()
+    return Response("{}", status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(method="get", auto_schema=None)
@@ -316,7 +318,5 @@ def favorites_sync(request):
     """
     Run job favorites_sync
     """
-    output = subprocess.Popen(
-        ["python", "src/jobs/favorites_sync.py"], stdout=subprocess.PIPE
-    )
-    return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
+    favorites_sync_job()
+    return Response("{}", status=status.HTTP_200_OK)

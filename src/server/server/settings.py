@@ -55,7 +55,7 @@ LOGGING = {
             "formatter": "simple",
         },
         "logstash": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logstash.TCPLogstashHandler",
             "host": logstash_host.split(":")[0],
             "port": int(logstash_host.split(":")[1]),
