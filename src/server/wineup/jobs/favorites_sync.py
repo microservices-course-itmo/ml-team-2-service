@@ -36,20 +36,23 @@ def favorites_sync_job():
                                                   port=int(logstash_host.split(":")[1]),
                                                   version=1,
                                                   tags=["ml-team-2-service"]))
-    app_favorites = get_app_favorites(logger)
-    logger.warning(f"Started adding new favorites")
-    request_body = []
-    for wine_id, user_id in tqdm(app_favorites):
-        request_body.append(
-            {"rating": 5, "variants": 5, "wine": wine_id, "user": user_id}
-        )
-    response = requests.post(f"{OUR_ADDRESS}/review/", json=json.dumps(request_body))
-    if response.status_code != 200:
-        logger.error(f"Adding favorites failed")
-        logger.error(response.status_code)
-        logger.error(response.text)
-        raise Exception("Adding favorites failed")
-    logger.warning(f"Finished sync favorites")
+    try:
+        app_favorites = get_app_favorites(logger)
+        logger.warning(f"Started adding new favorites")
+        request_body = []
+        for wine_id, user_id in tqdm(app_favorites):
+            request_body.append(
+                {"rating": 5, "variants": 5, "wine": wine_id, "user": user_id}
+            )
+        response = requests.post(f"{OUR_ADDRESS}/review/", json=json.dumps(request_body))
+        if response.status_code != 200:
+            logger.error(f"Adding favorites failed")
+            logger.error(response.status_code)
+            logger.error(response.text)
+            raise Exception("Adding favorites failed")
+        logger.warning(f"Finished sync favorites")
+    except Exception:
+        logger.exception("Exception while run favorites_sync_job")
 
 
 if __name__ == "__main__":

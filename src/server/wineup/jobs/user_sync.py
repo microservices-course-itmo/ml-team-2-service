@@ -20,7 +20,8 @@ def get_app_users_id(logger):
         url = f"{USER_ADDRESS}/internal/users?page={current_page}&size=20"
         app_users = requests.get(url)
         if app_users.status_code != 200:
-            raise Exception(f"app_users.status_code is not 200, {app_users.status_code}, {app_users}, {app_users.text}, {url}")
+            raise Exception(
+                f"app_users.status_code is not 200, {app_users.status_code}, {app_users}, {app_users.text}, {url}")
 
         app_users_dict = app_users.json()
         app_users_id.extend([user["id"] for user in app_users_dict["content"]])
@@ -51,22 +52,25 @@ def user_sync_job():
                                                   port=int(logstash_host.split(":")[1]),
                                                   version=1,
                                                   tags=["ml-team-2-service"]))
-    app_users_id = get_app_users_id(logger)
-    our_users_id = get_our_users_id(logger)
+    try:
+        app_users_id = get_app_users_id(logger)
+        our_users_id = get_our_users_id(logger)
 
-    new_ids = set(app_users_id) - set(our_users_id)
+        new_ids = set(app_users_id) - set(our_users_id)
 
-    logger.warning(f"Started adding new users. Will be added {len(new_ids)} users")
-    request_body = []
-    for id_ in tqdm(new_ids):
-        request_body.append({"internal_id": id_})
-    response = requests.post(f"{OUR_ADDRESS}/users/", json=json.dumps(request_body))
-    if response.status_code != 200:
-        logger.error(f"Adding users failed")
-        logger.error(response.status_code)
-        logger.error(response.text)
-        raise Exception("Adding users failed")
-    logger.warning(f"Finished adding new users")
+        logger.warning(f"Started adding new users. Will be added {len(new_ids)} users")
+        request_body = []
+        for id_ in tqdm(new_ids):
+            request_body.append({"internal_id": id_})
+        response = requests.post(f"{OUR_ADDRESS}/users/", json=json.dumps(request_body))
+        if response.status_code != 200:
+            logger.error(f"Adding users failed")
+            logger.error(response.status_code)
+            logger.error(response.text)
+            raise Exception("Adding users failed")
+        logger.warning(f"Finished adding new users")
+    except Exception:
+        logger.exception("Exception while run user_sync_job")
 
 
 if __name__ == "__main__":
