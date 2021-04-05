@@ -295,7 +295,7 @@ def user_sync(request):
     """
     Run job user_sync
     """
-    thread = Thread(target=user_sync_job, args=(logger,))
+    thread = Thread(target=user_sync_job, args=())
     thread.start()
     return Response("{}", status=status.HTTP_200_OK)
 
@@ -320,6 +320,6 @@ def favorites_sync(request):
     """
     Run job favorites_sync
     """
-    thread = Thread(target=favorites_sync_job, args=(logger,))
+    thread = Thread(target=favorites_sync_job, args=())
     thread.start()
     return Response("{}", status=status.HTTP_200_OK)

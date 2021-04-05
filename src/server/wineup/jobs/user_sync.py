@@ -43,7 +43,14 @@ def get_our_users_id(logger):
     return our_users_id
 
 
-def user_sync_job(logger):
+def user_sync_job():
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger('kafka_reader')
+    logger.addHandler(logging.StreamHandler())
+    logger.addHandler(logstash.TCPLogstashHandler(host=logstash_host.split(":")[0],
+                                                  port=int(logstash_host.split(":")[1]),
+                                                  version=1,
+                                                  tags=["ml-team-2-service"]))
     app_users_id = get_app_users_id(logger)
     our_users_id = get_our_users_id(logger)
 
@@ -63,10 +70,4 @@ def user_sync_job(logger):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger('kafka_reader')
-    logger.addHandler(logging.StreamHandler())
-    logger.addHandler(logstash.TCPLogstashHandler(host=logstash_host.split(":")[0],
-                                                  port=int(logstash_host.split(":")[1]),
-                                                  version=1))
-    user_sync_job(logger)
+    user_sync_job()

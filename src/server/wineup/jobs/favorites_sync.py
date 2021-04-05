@@ -28,8 +28,15 @@ def get_app_favorites(logger):
     return favorites
 
 
-def favorites_sync_job(logger):
-    app_favorites = get_app_favorites()
+def favorites_sync_job():
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger('kafka_reader')
+    logger.addHandler(logging.StreamHandler())
+    logger.addHandler(logstash.TCPLogstashHandler(host=logstash_host.split(":")[0],
+                                                  port=int(logstash_host.split(":")[1]),
+                                                  version=1,
+                                                  tags=["ml-team-2-service"]))
+    app_favorites = get_app_favorites(logger)
     logger.warning(f"Started adding new favorites")
     request_body = []
     for wine_id, user_id in tqdm(app_favorites):
@@ -46,10 +53,4 @@ def favorites_sync_job(logger):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger('kafka_reader')
-    logger.addHandler(logging.StreamHandler())
-    logger.addHandler(logstash.TCPLogstashHandler(host=logstash_host.split(":")[0],
-                                                  port=int(logstash_host.split(":")[1]),
-                                                  version=1))
-    favorites_sync_job(logger)
+    favorites_sync_job()
