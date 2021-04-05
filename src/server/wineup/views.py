@@ -23,6 +23,7 @@ import numpy as np
 from .recommendation_model import model
 from .jobs.user_sync import user_sync_job
 from .jobs.favorites_sync import favorites_sync_job
+from threading import Thread
 
 logger = logging.getLogger(__name__)
 
@@ -294,7 +295,8 @@ def user_sync(request):
     """
     Run job user_sync
     """
-    user_sync_job()
+    thread = Thread(target=user_sync_job, args=())
+    thread.start()
     return Response("{}", status=status.HTTP_200_OK)
 
 
@@ -318,5 +320,6 @@ def favorites_sync(request):
     """
     Run job favorites_sync
     """
-    favorites_sync_job()
+    thread = Thread(target=favorites_sync_job, args=())
+    thread.start()
     return Response("{}", status=status.HTTP_200_OK)
