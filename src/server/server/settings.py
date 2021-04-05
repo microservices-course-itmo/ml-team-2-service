@@ -157,7 +157,7 @@ SWAGGER_SETTINGS = {
     "BASE_URL": os.getenv("S_BASE_URL"),
 }
 
-STATIC_URL = "/ml-team-2-service/static/"
+STATIC_URL = "ml-team-2-service/static/"
 
 CORS_ALLOW_ALL_ORIGINS = True
 
