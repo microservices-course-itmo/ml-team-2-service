@@ -3,13 +3,15 @@ import json
 import requests
 from tqdm import tqdm
 import logging
+import logstash
 
 OUR_ADDRESS = os.environ["S_OUR_ADDRESS"]
 USER_ADDRESS = os.environ["S_USER_ADDRESS"]
+logstash_host = os.environ.get("S_LOGSTASH_HOST")
 
 
-def get_app_favorites():
-    logging.warning("Started getting app users")
+def get_app_favorites(logger):
+    logger.warning("Started getting app users")
     favorites = []
     app_users = requests.get(f"{USER_ADDRESS}/internal/users/favorites")
     if app_users.status_code != 200:
@@ -22,13 +24,13 @@ def get_app_favorites():
         for wine_id in user_favorites["favoriteIds"]:
             favorites.append((wine_id, user_id))
 
-    logging.warning("Finished getting app users")
+    logger.warning("Finished getting app users")
     return favorites
 
 
-def favorites_sync_job():
+def favorites_sync_job(logger):
     app_favorites = get_app_favorites()
-    logging.warning(f"Started adding new favorites")
+    logger.warning(f"Started adding new favorites")
     request_body = []
     for wine_id, user_id in tqdm(app_favorites):
         request_body.append(
@@ -36,12 +38,18 @@ def favorites_sync_job():
         )
     response = requests.post(f"{OUR_ADDRESS}/review/", json=json.dumps(request_body))
     if response.status_code != 200:
-        logging.error(f"Adding favorites failed")
-        logging.error(response.status_code)
-        logging.error(response.text)
+        logger.error(f"Adding favorites failed")
+        logger.error(response.status_code)
+        logger.error(response.text)
         raise Exception("Adding favorites failed")
-    logging.warning(f"Finished sync favorites")
+    logger.warning(f"Finished sync favorites")
 
 
 if __name__ == "__main__":
-    favorites_sync_job()
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger('kafka_reader')
+    logger.addHandler(logging.StreamHandler())
+    logger.addHandler(logstash.TCPLogstashHandler(host=logstash_host.split(":")[0],
+                                                  port=int(logstash_host.split(":")[1]),
+                                                  version=1))
+    favorites_sync_job(logger)
