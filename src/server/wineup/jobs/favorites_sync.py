@@ -37,8 +37,9 @@ def favorites_sync_job():
                                                   version=1,
                                                   tags=["ml-team-2-service"]))
     try:
-        app_favorites = get_app_favorites(logger)
         logger.warning(f"Started adding new favorites")
+        app_favorites = get_app_favorites(logger)
+        logger.warning(f"Got favorites {app_favorites}")
         request_body = []
         for wine_id, user_id in tqdm(app_favorites):
             request_body.append(
