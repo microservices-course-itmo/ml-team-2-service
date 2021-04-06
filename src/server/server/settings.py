@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = "foo"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.environ.get("DEBUG", False))
 
 ALLOWED_HOSTS = ["*"]
 
@@ -55,7 +55,7 @@ LOGGING = {
             "formatter": "simple",
         },
         "logstash": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logstash.TCPLogstashHandler",
             "host": logstash_host.split(":")[0],
             "port": int(logstash_host.split(":")[1]),
@@ -157,7 +157,7 @@ SWAGGER_SETTINGS = {
     "BASE_URL": os.getenv("S_BASE_URL"),
 }
 
-STATIC_URL = "/ml-team-2-service/static/"
+STATIC_URL = "ml-team-2-service/static/"
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -166,3 +166,5 @@ CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_PATH = "/ml-team-2-service/admin/"
 
 CSRF_COOKIE_SAMESITE = False
+
+TIMEOUT = 60 * 30  # 30 min

@@ -21,6 +21,11 @@ from tqdm import tqdm
 import pandas as pd
 import numpy as np
 from .recommendation_model import model
+from .jobs.user_sync import user_sync_job
+from .jobs.favorites_sync import favorites_sync_job
+from threading import Thread
+
+logger = logging.getLogger(__name__)
 
 
 def build_adjacency_matrix() -> pd.DataFrame:
@@ -153,6 +158,10 @@ def review_list(request):
                 )
                 if serializer.is_valid():
                     serializer.save()
+                    if wine.pk not in adjacency_matrix.columns:
+                        add_wine_in_matrix(wine.pk)
+                    if user.pk not in adjacency_matrix["user_id"]:
+                        add_user_in_matrix(user.pk)
                     index = adjacency_matrix[adjacency_matrix["user_id"] == user.pk].index[
                         0
                     ]
@@ -276,7 +285,7 @@ def wine_internal_id_to_wine_external_id(wines_ids: List[int]) -> List[int]:
 @api_view(["GET"])
 def print_matrix(request):
     global adjacency_matrix
-    logging.info(adjacency_matrix)
+    logger.warning(adjacency_matrix)
     return Response(str(adjacency_matrix), status.HTTP_200_OK)
 
 
@@ -286,10 +295,9 @@ def user_sync(request):
     """
     Run job user_sync
     """
-    output = subprocess.Popen(
-        ["python", "src/jobs/user_sync.py"], stdout=subprocess.PIPE
-    )
-    return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
+    thread = Thread(target=user_sync_job, args=())
+    thread.start()
+    return Response("{}", status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(method="get", auto_schema=None)
@@ -298,6 +306,7 @@ def catalog_sync(request):
     """
     Run job catalog_sync
     """
+    return Response({}, status=status.HTTP_200_OK)
     output = subprocess.Popen(
         ["python", "src/jobs/catalog_sync.py"], stdout=subprocess.PIPE
     )
@@ -311,7 +320,6 @@ def favorites_sync(request):
     """
     Run job favorites_sync
     """
-    output = subprocess.Popen(
-        ["python", "src/jobs/favorites_sync.py"], stdout=subprocess.PIPE
-    )
-    return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
+    thread = Thread(target=favorites_sync_job, args=())
+    thread.start()
+    return Response("{}", status=status.HTTP_200_OK)
