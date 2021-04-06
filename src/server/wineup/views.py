@@ -158,7 +158,7 @@ def review_list(request):
                 )
                 if serializer.is_valid():
                     serializer.save()
-		    if wine.pk not in adjacency_matrix.columns:
+                    if wine.pk not in adjacency_matrix.columns:
                         add_wine_in_matrix(wine.pk)
                     if user.pk not in adjacency_matrix["user_id"]:
                         add_user_in_matrix(user.pk)
@@ -193,6 +193,7 @@ def review_list(request):
             most_popular_index = most_popular_wines(adjacency_matrix)
             review_model.delete()
         return Response({"result": "ok"}, status=status.HTTP_200_OK)
+
 
 def get_or_create_wine(internal_id):
     try:
@@ -304,7 +305,7 @@ def catalog_sync(request):
     """
     Run job catalog_sync
     """
-    return Response({}, status=status.HTTP_200_OK)	
+    return Response({}, status=status.HTTP_200_OK)
     output = subprocess.Popen(
         ["python", "src/jobs/catalog_sync.py"], stdout=subprocess.PIPE
     )
