@@ -18,11 +18,13 @@ def get_app_favorites(logger):
         raise Exception(f"app_users.status_code is not 200, {app_users.status_code}, {app_users}, {app_users.text}")
 
     app_users_favorites = app_users.json()
-
+    logger.warning(f"Got {len(app_users_favorites)} users")
     for user_favorites in app_users_favorites:
         user_id = user_favorites["userId"]
         for wine_id in user_favorites["favoriteIds"]:
             favorites.append((wine_id, user_id))
+
+    logger.warning(f"Got {len(favorites)} favorites")
 
     logger.warning("Finished getting app users")
     return favorites
