@@ -171,6 +171,8 @@ def review_list(request):
                     most_popular_index = most_popular_wines(adjacency_matrix)
                 else:
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({"result": "ok"}, status=status.HTTP_200_OK)
     elif request.method == "DELETE":
         data = json.loads(request.data)
