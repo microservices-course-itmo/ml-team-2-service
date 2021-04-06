@@ -1,11 +1,22 @@
-FROM kinoooshnik/ml-team-2-service:ml-team-2-service
+FROM python:3.7.9
 
 WORKDIR /usr/src/app
 
 ENV PYTHONUNBUFFERED 1
 
+RUN apt update
+RUN apt install -y python3-pip python3-scipy
+RUN pip3 install --upgrade pip
 COPY ./requirements.txt .
 RUN pip3 install -r requirements.txt
+
+RUN \
+  apt install -y software-properties-common && \
+  add-apt-repository -y ppa:nginx/stable && \
+  apt install -y nginx && \
+  rm -rf /var/lib/apt/lists/* && \
+  echo "\ndaemon off;" >> /etc/nginx/nginx.conf && \
+  chown -R www-data:www-data /var/lib/nginx
 
 COPY ./nginx .
 
