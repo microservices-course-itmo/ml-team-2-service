@@ -18,8 +18,8 @@ class ReviewSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     rating = serializers.IntegerField(required=True)
     variants = serializers.IntegerField(required=True)
-    wine = serializers.IntegerField(required=True)
-    user = serializers.IntegerField(required=True)
+    wine = serializers.CharField(required=True)
+    user = serializers.CharField(required=True)
 
 
 class ReviewModelSerializer(serializers.ModelSerializer):
