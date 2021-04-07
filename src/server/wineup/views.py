@@ -39,7 +39,7 @@ def build_adjacency_matrix() -> pd.DataFrame:
         result = [int(user.pk)] + [None] * len(wines)
         for review in user_reviews:
             result[wine_pk_wine_id[review.wine.pk] + 1] = (
-                review.rating / review.variants
+                    review.rating / review.variants
             )
 
         adjacency_matrix.append(result)
@@ -93,7 +93,7 @@ def user_list(request):
 def add_user_in_matrix(id_):
     global adjacency_matrix
     adjacency_matrix.loc[len(adjacency_matrix)] = [int(id_)] + [None] * (
-        adjacency_matrix.shape[1] - 1
+            adjacency_matrix.shape[1] - 1
     )
 
 
@@ -222,6 +222,7 @@ def get_or_create_review(wine, user):
         review = Review()
     return review
 
+
 @swagger_auto_schema(
     method="get",
     manual_parameters=[
@@ -229,20 +230,22 @@ def get_or_create_review(wine, user):
             "user_id",
             openapi.IN_PATH,
             required=True,
-            description="User id",
+            description="User id, with empty value works too",
             type=openapi.TYPE_INTEGER,
         ),
         openapi.Parameter(
             "page",
             openapi.IN_QUERY,
-            required=True,
+            required=False,
+            default=0,
             description="Number of page to retrieve. Starts from 0",
             type=openapi.TYPE_INTEGER,
         ),
         openapi.Parameter(
             "size",
             openapi.IN_QUERY,
-            required=True,
+            required=False,
+            default=10,
             description="Number of elements in one page",
             type=openapi.TYPE_INTEGER,
         ),
@@ -250,12 +253,41 @@ def get_or_create_review(wine, user):
 )
 @api_view(["GET"])
 def get_recommendations(request, **kwargs):
+    return _get_rec(request, **kwargs)
+
+@swagger_auto_schema(
+    method="get",
+    manual_parameters=[
+        openapi.Parameter(
+            "page",
+            openapi.IN_QUERY,
+            required=False,
+            default=0,
+            description="Number of page to retrieve. Starts from 0",
+            type=openapi.TYPE_INTEGER,
+        ),
+        openapi.Parameter(
+            "size",
+            openapi.IN_QUERY,
+            required=False,
+            default=10,
+            description="Number of elements in one page",
+            type=openapi.TYPE_INTEGER,
+        ),
+    ],
+)
+@api_view(["GET"])
+def get_recommendations_default(request, **kwargs):
+    return _get_rec(request, **kwargs)
+
+
+def _get_rec(request, **kwargs):
     """
     Получить рекомендацию по конкретному пользователю
     """
-    user_id = int(kwargs["user_id"])
-    page = int(request.query_params["page"])
-    size = int(request.query_params["size"])
+    user_id = int(kwargs.get("user_id", 0))
+    page = int(request.query_params.get("page", 0))
+    size = int(request.query_params.get("size", 10))
     global adjacency_matrix, most_popular_index
     try:
         our_user = User.objects.get(internal_id=user_id)
@@ -264,7 +296,7 @@ def get_recommendations(request, **kwargs):
         wines_ids = most_popular_index
     total = len(wines_ids)
     total_pages = math.ceil(len(wines_ids) / size)
-    wines_ids = wines_ids[page * size : (page + 1) * size]
+    wines_ids = wines_ids[page * size: (page + 1) * size]
     wines_ids = wine_internal_id_to_wine_external_id(wines_ids)
     result = {
         "content": wines_ids,
@@ -312,7 +344,6 @@ def catalog_sync(request):
         ["python", "src/jobs/catalog_sync.py"], stdout=subprocess.PIPE
     )
     return Response([output.stdout, output.stderr], status=status.HTTP_200_OK)
-
 
 
 @swagger_auto_schema(method="get", auto_schema=None)
